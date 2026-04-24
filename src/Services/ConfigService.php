@@ -19,6 +19,11 @@ class ConfigService
     private int $version;
 
     private string $previewUrl;
+    private string $dbHost;
+    private int $dbPort;
+    private string $dbName;
+    private string $dbUser;
+    private string $dbPassword;
 
     private string $baseUrl = '';
     /**
@@ -31,19 +36,32 @@ class ConfigService
         $configDistUrl = $kernel->getProjectDir() . '/config/config.json.dist';
         $configDist = json_decode(file_get_contents($configDistUrl), true);
 
+        $configFile = $kernel->getProjectDir() . '/config/config.json';
+        if (is_file($configFile)) {
+            $configOverride = json_decode(file_get_contents($configFile), true);
+            if (is_array($configOverride)) {
+                $configDist = array_merge($configDist, $configOverride);
+            }
+        }
 
-        if(is_file($kernel->getProjectDir() . '/var/application_installed.json')){
+        if (is_file($kernel->getProjectDir() . '/var/application_installed.json')) {
             $applicationConfig = json_decode(file_get_contents($kernel->getProjectDir() . '/var/application_installed.json'), true);
             $this->baseUrl = $applicationConfig['base_url'];
         }
 
-        $this->deployUrl =  $configDist['deploy_url'];
-        $this->mediaUrl =  array_key_exists('media_url',$configDist) ? $configDist['media_url'] : '';
-        $this->amazonS3EditorBuildUrl =  array_key_exists('amazon_s3_editor_build_url',$configDist) ? $configDist['amazon_s3_editor_build_url']: '';
+        $this->deployUrl = $configDist['deploy_url'];
+        $this->mediaUrl = array_key_exists('media_url', $configDist) ? $configDist['media_url'] : '';
+        $this->amazonS3EditorBuildUrl = array_key_exists('amazon_s3_editor_build_url', $configDist) ? $configDist['amazon_s3_editor_build_url'] : '';
         $this->appId = $configDist['app_id'];
         $this->version = $configDist['version'];
         $this->previewUrl = $configDist['preview_url'];
-        $this->allowedQueryParams = array_key_exists('allowed_query_params',$configDist) ? explode('|', $configDist['allowed_query_params']) : [];
+        $this->allowedQueryParams = array_key_exists('allowed_query_params', $configDist) ? explode('|', $configDist['allowed_query_params']) : [];
+
+        $this->dbHost = $configDist['db_host'] ?? '127.0.0.1';
+        $this->dbPort = isset($configDist['db_port']) ? (int)$configDist['db_port'] : 3306;
+        $this->dbName = $configDist['db_name'] ?? 'dfsub';
+        $this->dbUser = $configDist['db_user'] ?? 'root';
+        $this->dbPassword = $configDist['db_password'] ?? '';
 
         try {
             $client = new Client();
@@ -99,6 +117,31 @@ class ConfigService
     public function getBaseUrl(): string
     {
         return $this->baseUrl;
+    }
+
+    public function getDbHost(): string
+    {
+        return $this->dbHost;
+    }
+
+    public function getDbPort(): int
+    {
+        return $this->dbPort;
+    }
+
+    public function getDbName(): string
+    {
+        return $this->dbName;
+    }
+
+    public function getDbUser(): string
+    {
+        return $this->dbUser;
+    }
+
+    public function getDbPassword(): string
+    {
+        return $this->dbPassword;
     }
 
     public function getAllowedQueryParams(): array

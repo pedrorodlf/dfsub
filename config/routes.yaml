@@ -24,6 +24,51 @@ sitemap:
   path: '/sitemap.xml'
   controller: App\ProxyController::sitemapAction
 
+login:
+  path: '/login'
+  controller: App\Controller\AuthController::loginAction
+  methods: [GET, POST]
+
+register:
+  path: '/register'
+  controller: App\Controller\AuthController::registerAction
+  methods: [GET, POST]
+
+logout:
+  path: '/logout'
+  controller: App\Controller\AuthController::logoutAction
+  methods: GET
+
+dashboard:
+  path: '/dashboard'
+  controller: App\Controller\AuthController::dashboardAction
+  methods: [GET, POST]
+
+dashboard_pdf:
+  path: '/dashboard/carteira.pdf'
+  controller: App\Controller\AuthController::downloadCardAction
+  methods: GET
+
+admin:
+  path: '/admin'
+  controller: App\Controller\AdminController::indexAction
+  methods: [GET, POST]
+
+admin_edit:
+  path: '/admin/editar/{id}'
+  controller: App\Controller\AdminController::editAction
+  methods: [GET, POST]
+
+consulta:
+  path: '/consulta'
+  controller: App\Controller\PublicController::consultaAction
+  methods: GET
+
+validate_user:
+  path: '/validar/{token}'
+  controller: App\Controller\PublicController::validateAction
+  methods: GET
+
 proxy:
   path: '/{dynamicRoute}'
   controller: 'App\ProxyController::indexAction'

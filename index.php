@@ -18,6 +18,10 @@ if(!ProjectRequirements::isApplicationInstalled()){
     require __DIR__ . '/requirements-checker/requirements-checker.php';
 }
 
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 $kernel = new \App\Kernel('prod', false);
 $request = Request::createFromGlobals();
 
