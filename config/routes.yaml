@@ -75,3 +75,8 @@ proxy:
   methods: GET|POST
   requirements:
     dynamicRoute: '^(?!.*\.(.+)).*$'
+
+forgot_password:
+  path: '/forgot-password'
+  controller: App\Controller\AuthController::forgotPasswordAction
+  methods: [GET, POST]

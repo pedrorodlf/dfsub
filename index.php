@@ -1,7 +1,8 @@
 <?php
 define('MAX_FILE_SIZE', 6000000);
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_WARNING & ~E_NOTICE);
-ini_set('display_errors', '0');
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
 
 require __DIR__.'/vendor/autoload.php';
 
@@ -31,7 +32,16 @@ if(!ProjectRequirements::isApplicationConnectedWithCloud() && !str_contains($req
     $kernel->getContainer()->get('cloud_connection_service')->establishConnection($request);
 }
 
-header("cache-control:no-store, no-cache, must-revalidate, max-age=0");
-$response = $kernel->handle($request);
-$response->send();
-$kernel->terminate($request, $response);
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+try {
+    $response = $kernel->handle($request);
+    $response->send();
+    $kernel->terminate($request, $response);
+} catch (\Throwable $e) {
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "Erro interno do servidor:\n";
+    echo $e->getMessage() . "\n\n";
+    echo $e->getTraceAsString();
+    exit(1);
+}

@@ -11,6 +11,17 @@ class UserService
     public function __construct(DatabaseService $databaseService)
     {
         $this->databaseService = $databaseService;
+        $this->updateExpiredUsers();
+    }
+
+    public function updateExpiredUsers(): void
+    {
+        try {
+            $sql = "UPDATE users SET status = 'Vencido' WHERE data_vencimento IS NOT NULL AND data_vencimento < CURDATE() AND status = 'Ativo'";
+            $this->databaseService->getConnection()->exec($sql);
+        } catch (\Throwable $e) {
+            // Ignora falhas silenciosas na atualização automática
+        }
     }
 
     public function getUserByEmail(string $email): ?array
@@ -66,8 +77,8 @@ class UserService
             'matricula' => $data['matricula'],
             'senha_hash' => $senhaHash,
             'status' => $data['status'] ?? 'Aguardando verificação',
-            'data_emissao' => $data['data_emissao'] ?: null,
-            'data_vencimento' => $data['data_vencimento'] ?: null,
+            'data_emissao' => empty($data['data_emissao']) ? null : $data['data_emissao'],
+            'data_vencimento' => empty($data['data_vencimento']) ? null : $data['data_vencimento'],
             'qr_token' => $data['qr_token'] ?? $this->generateQrToken(),
             'role' => $data['role'] ?? 'associado',
         ]);
@@ -102,6 +113,12 @@ class UserService
         $sql = sprintf('UPDATE users SET %s WHERE id = :id', implode(', ', $fields));
         $stmt = $this->databaseService->getConnection()->prepare($sql);
         return $stmt->execute($params);
+    }
+
+    public function deleteUser(int $id): bool
+    {
+        $stmt = $this->databaseService->getConnection()->prepare('DELETE FROM users WHERE id = :id');
+        return $stmt->execute(['id' => $id]);
     }
 
     public function verifyPassword(string $password, ?string $hash): bool

@@ -3,5 +3,5 @@
   "db_port": 3306,
   "db_name": "rrcons65_dfsub",
   "db_user": "rrcons65_admin",
-  "db_password": ""
+  "db_password": "admindfsub"
 }
